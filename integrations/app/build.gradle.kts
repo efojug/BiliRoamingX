@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "app.revanced.bilibili.integrations"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         multiDexEnabled = false
         val verName = project.version as String

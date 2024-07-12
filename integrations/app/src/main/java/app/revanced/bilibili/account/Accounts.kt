@@ -186,45 +186,22 @@ object Accounts {
         val info = HttpClient.get("https://black.qimo.ink/api/users/$mid")
             ?.data<BlacklistInfo>() ?: return@runCatching
         val blockedKey = "user_blocked_$mid"
-        if (info.isBlacklist && info.banUntil.time > current) Utils.runOnMainThread {
-            cachePrefs.edit { putBoolean(blockedKey, true) }
-            userBlocked = true
-            val formatTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                .format(info.banUntil)
+        cachePrefs.edit { putBoolean(blockedKey, false) }
+        userBlocked = false
+        Utils.runOnMainThread {
             val topActivity = ApplicationDelegate.getTopActivity()
             if (topActivity != null && !dialogShowing) {
                 AlertDialog.Builder(topActivity)
-                    .setTitle(Utils.getString("biliroaming_blocked_title"))
-                    .setMessage(Utils.getString("biliroaming_blocked_description", formatTime))
-                    .setNegativeButton(Utils.getString("biliroaming_get_it"), null)
-                    .setPositiveButton(Utils.getString("biliroaming_view_reason")) { _, _ ->
-                        val uri = Uri.parse("https://t.me/BiliRoamingServerBlacklistLog")
-                        topActivity.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                    .setTitle(Utils.getString("biliroaming_unblocked_title"))
+                    .setMessage(Utils.getString("biliroaming_unblocked_description"))
+                    .setPositiveButton(Utils.getString("biliroaming_reboot_now")) { _, _ ->
+                        Utils.reboot()
                     }.create().constraintSize().apply {
                         setCancelable(false)
                         setCanceledOnTouchOutside(false)
                         onDismiss { dialogShowing = false }
                     }.show()
                 dialogShowing = true
-            }
-        } else if (cachePrefs.getBoolean(blockedKey, false)) {
-            cachePrefs.edit { putBoolean(blockedKey, false) }
-            userBlocked = false
-            Utils.runOnMainThread {
-                val topActivity = ApplicationDelegate.getTopActivity()
-                if (topActivity != null && !dialogShowing) {
-                    AlertDialog.Builder(topActivity)
-                        .setTitle(Utils.getString("biliroaming_unblocked_title"))
-                        .setMessage(Utils.getString("biliroaming_unblocked_description"))
-                        .setPositiveButton(Utils.getString("biliroaming_reboot_now")) { _, _ ->
-                            Utils.reboot()
-                        }.create().constraintSize().apply {
-                            setCancelable(false)
-                            setCanceledOnTouchOutside(false)
-                            onDismiss { dialogShowing = false }
-                        }.show()
-                    dialogShowing = true
-                }
             }
         }
     }
