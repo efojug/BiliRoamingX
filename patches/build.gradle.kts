@@ -9,7 +9,8 @@ plugins {
 group = "app.revanced.bilibili"
 
 dependencies {
-    implementation(libs.revanced.patcher)
+    implementation(files("libs/revanced-patcher-19.3.1.1.jar"))
+//    implementation(libs.revanced.patcher)
     implementation(libs.smali)
     // Used in JsonGenerator.
     implementation(libs.gson)
@@ -37,8 +38,9 @@ tasks.register("buildDexJar") {
     dependsOn(tasks.build)
 
     doLast {
-        val d8 = File(System.getenv("ANDROID_HOME")).resolve("build-tools")
-            .listFilesOrdered().last().resolve("d8").absolutePath
+//        val d8 = File(System.getenv("ANDROID_HOME")).resolve("build-tools")
+//            .listFilesOrdered().last().resolve("d8").absolutePath
+        val d8 = "C:\\Users\\efojug\\AppData\\Local\\Android\\Sdk\\build-tools\\35.0.0\\d8.bat"
 
         val patchesJar = configurations.archives.get().allArtifacts.files.files.first().absolutePath
         val workingDirectory = layout.buildDirectory.dir("libs").get().asFile
@@ -50,7 +52,8 @@ tasks.register("buildDexJar") {
 
         exec {
             workingDir = workingDirectory
-            commandLine = listOf("zip", "-u", patchesJar, "classes.dex")
+            commandLine = listOf("powershell", "-Command", "Compress-Archive -Path classes.dex -DestinationPath $patchesJar -Update")
+//            commandLine = listOf("zip", "-u", patchesJar, "classes.dex")
         }
     }
 }
